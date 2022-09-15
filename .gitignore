@@ -131,3 +131,4 @@ dmypy.json
 
 # for MAC 
 .DS_store
+data/raw

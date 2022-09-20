@@ -1,7 +1,11 @@
+import pandas as pd
 import tweepy
-import config
-# import botometer
+import logging
 from tweepy.auth import OAuthHandler
+from src.twitter_api import config
+
+# import botometer
+
 
 # TODO: are there other features we can collect 
 USER_FEATURES = [
@@ -71,8 +75,34 @@ class ProfileScraper:
     
     def check_suspension_status(self, screen_name):
         """
+        
         return user status
             if user does not exist, status is None: 
         """
         return self.check_status(screen_name, features=[])
+    
+    
+    def run(self, users, features=USER_FEATURES, save_file=None):
+        """
+        
+        Scrape from profile for multiple input users 
+        and save results as a CSV file 
+        """
+        for i, screen_name in enumerate(users):
+            
+            outputs = self.check_status(screen_name)
+            outputs['name'] = screen_name
+            df = pd.DataFrame(outputs, index=[i])
+            logging.debug(outputs)
+            
+            # add current row to existing csv file 
+            if save_file is not None:
+                df.to_csv(save_file, index=False, 
+                          mode='w' if i == 0 else 'a', 
+                          header=(i==0))
+
+            # add current row to existing dataframe
+            cumulative_df = df if i == 0 else cumulative_df.append(df)
+
+        return cumulative_df 
   

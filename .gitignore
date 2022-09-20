@@ -132,3 +132,6 @@ dmypy.json
 # for MAC 
 .DS_store
 data/raw
+testing
+
+src/twitter_api/config.py

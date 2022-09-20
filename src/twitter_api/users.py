@@ -1,4 +1,5 @@
 import tweepy
+import config
 # import botometer
 from tweepy.auth import OAuthHandler
 

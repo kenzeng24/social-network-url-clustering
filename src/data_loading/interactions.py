@@ -33,10 +33,8 @@ def aggregate_interaction_text(id, i_min=1000):
 
 
 def aggregate_text(metadata, **kwargs):
-    """apply """
-    meta_data['interaction_text'] = meta_data.id_hash256.apply(
+    return metadata.id_hash256.apply(
         lambda id: aggregate_interaction_text(id, **kwargs))
-    return metadata
 
 
 def get_metadata(filename=METADATA_FILE):

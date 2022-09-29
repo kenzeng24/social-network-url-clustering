@@ -27,7 +27,7 @@ full_stopwords = [tokenize(s)[0] for s in stop]
 
 
 def n_grams_vectorizer(
-    ngram, 
+    ngram=1, 
     stop_words=set(stop),
     analyzer="word",        # unit of features are single words rather than characters
     tokenizer=tokenize,      # function to create tokens

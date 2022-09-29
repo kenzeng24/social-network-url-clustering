@@ -26,15 +26,8 @@ stop = stop_words
 full_stopwords = [tokenize(s)[0] for s in stop]
 
 
-def n_grams_vectorizer(
-    ngram=1, 
-    stop_words=set(stop),
-    analyzer="word",        # unit of features are single words rather than characters
-    tokenizer=tokenize,      # function to create tokens
-    ngram_range=(0,int(ngram)),       # change num of words co-located
-    strip_accents='unicode', # remove accent characters
-    min_df = 0.05,           # only include words with minimum frequency of 0.05
-    max_df = 0.95,  **kwargs):
+
+def n_grams_vectorizer(ngram=1, min_df=0.05, max_df=0.95, **kwargs):
     
     # TODO: add additional customization for vectorizer 
     vectorizer = CountVectorizer(
@@ -43,26 +36,27 @@ def n_grams_vectorizer(
         tokenizer=tokenize,      # function to create tokens
         ngram_range=(0,int(ngram)),       # change num of words co-located
         strip_accents='unicode', # remove accent characters
-        min_df = 0.05,           # only include words with minimum frequency of 0.05
-        max_df = 0.95, 
+        min_df = min_df,           
+        max_df = max_df, 
         **kwargs
     )           # only include words with maximum frequency of 0.95
     return vectorizer
 
 
-# separate TFIDF from LDA
 def tfidf_vectorize(text_list,vectorizer=None, ngram=1, **kwargs):
 
+    # convert text list to bag of words 
     if vectorizer is None:
         vectorizer = n_grams_vectorizer(ngram)
     bag_of_words = vectorizer.fit_transform(text_list)  # transform our corpus as a bag of words
     features = vectorizer.get_feature_names()  
     
+    # convert bag of words to tfidf
     transformer = TfidfTransformer(
         norm = None, 
         smooth_idf = True, 
-        sublinear_tf = True, **kwargs)
-    
+        sublinear_tf = True, **kwargs
+    )
     tfidf = transformer.fit_transform(bag_of_words)
     return tfidf, features
 

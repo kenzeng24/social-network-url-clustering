@@ -1,6 +1,5 @@
-import spacy
-from textstat.textstat import textstatistics as ts
-import nltk
+import spacy, string, nltk
+# from textstat.textstat import textstatistics as ts
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn import preprocessing
@@ -8,7 +7,6 @@ from nltk import SnowballStemmer
 from nltk.corpus import stopwords
 nltk.download('stopwords')
 
-# !pip install textstat
 
 translator=str.maketrans(string.punctuation, ' ' * len(string.punctuation))
 string.punctuation
@@ -55,7 +53,7 @@ def tfidf_vectorize(text_list, ngram=1, **kwargs):
     return tfidf, features
 
 
-def topic_generator(tfidf, features, num_topics=10, **kwargs):
+def topic_generator(tfidf, features, num_topics=10, verbose=False, **kwargs):
 
     # Fitting LDA model
     lda = LatentDirichletAllocation(
@@ -71,5 +69,6 @@ def topic_generator(tfidf, features, num_topics=10, **kwargs):
         word_idx = np.argsort(topic)[::-1][:10]
         keywords = ', '.join(features[i] for i in word_idx)
         ls_keywords.append(keywords)
-        print(i, keywords) 
+        if verbose:
+            print(i, keywords) 
     return doctopic, ls_keywords

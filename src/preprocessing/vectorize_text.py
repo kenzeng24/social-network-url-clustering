@@ -1,5 +1,7 @@
 import spacy, string, nltk
-# from textstat.textstat import textstatistics as ts
+import numpy as np 
+import pandas as pd 
+
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn import preprocessing
@@ -23,8 +25,18 @@ stop_words = [tokenize(s)[0] for s in stop_words]
 stop = stop_words 
 full_stopwords = [tokenize(s)[0] for s in stop]
 
-def n_grams_vectorizer(ngram):
 
+def n_grams_vectorizer(
+    ngram, 
+    stop_words=set(stop),
+    analyzer="word",        # unit of features are single words rather than characters
+    tokenizer=tokenize,      # function to create tokens
+    ngram_range=(0,int(ngram)),       # change num of words co-located
+    strip_accents='unicode', # remove accent characters
+    min_df = 0.05,           # only include words with minimum frequency of 0.05
+    max_df = 0.95,  **kwargs):
+    
+    # TODO: add additional customization for vectorizer 
     vectorizer = CountVectorizer(
         stop_words=set(stop),
         analyzer="word",        # unit of features are single words rather than characters
@@ -32,15 +44,17 @@ def n_grams_vectorizer(ngram):
         ngram_range=(0,int(ngram)),       # change num of words co-located
         strip_accents='unicode', # remove accent characters
         min_df = 0.05,           # only include words with minimum frequency of 0.05
-        max_df = 0.95
+        max_df = 0.95, 
+        **kwargs
     )           # only include words with maximum frequency of 0.95
     return vectorizer
 
 
 # separate TFIDF from LDA
-def tfidf_vectorize(text_list, ngram=1, **kwargs):
+def tfidf_vectorize(text_list,vectorizer=None, ngram=1, **kwargs):
 
-    vectorizer = n_grams_vectorizer(ngram)
+    if vectorizer is None:
+        vectorizer = n_grams_vectorizer(ngram)
     bag_of_words = vectorizer.fit_transform(text_list)  # transform our corpus as a bag of words
     features = vectorizer.get_feature_names()  
     

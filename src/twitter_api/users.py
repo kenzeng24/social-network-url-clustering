@@ -37,13 +37,12 @@ class ProfileScraper:
     scrape profile of twitter users using Twitter API
     """
 
-    def __init__(self, twitter_app_auth=None, **kwargs):
+    def __init__(self, twitter_app_auth=None, wait_on_rate_limit=True, **kwargs):
         
         if twitter_app_auth is None:
             twitter_app_auth = config.twitter_app_auth
-        
         self.auth = create_tweepy_auth(twitter_app_auth)
-        self.api = tweepy.API(self.auth, **kwargs)
+        self.api = tweepy.API(self.auth, wait_on_rate_limit=wait_on_rate_limit, **kwargs)
     
     
     def check_status(self, screen_name, features=USER_FEATURES):
@@ -65,7 +64,6 @@ class ProfileScraper:
                     outputs[feature] = None
         
         except tweepy.error.TweepError as error:
-            
             error_code = error.args[0][0]['code']
             if error_code == 63:
                 outputs['status'] = 'suspended'
@@ -88,8 +86,7 @@ class ProfileScraper:
         Scrape from profile for multiple input users 
         and save results as a CSV file 
         """
-        for i, screen_name in enumerate(users):
-            
+        for i, screen_name in enumerate(users):           
             outputs = self.check_status(screen_name)
             outputs['name'] = screen_name
             df = pd.DataFrame(outputs, index=[i])
@@ -100,7 +97,6 @@ class ProfileScraper:
                 df.to_csv(save_file, index=False, 
                           mode='w' if i == 0 else 'a', 
                           header=(i==0))
-
             # add current row to existing dataframe
             cumulative_df = df if i == 0 else cumulative_df.append(df)
 

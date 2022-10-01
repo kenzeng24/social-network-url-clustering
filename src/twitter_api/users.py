@@ -3,6 +3,7 @@ import tweepy
 import logging
 from tweepy.auth import OAuthHandler
 from src.twitter_api import config
+from tqdm import tqdm
 
 # import botometer
 
@@ -91,7 +92,7 @@ class ProfileScraper:
         Scrape from profile for multiple input users 
         and save results as a CSV file 
         """
-        for i, screen_name in enumerate(users):           
+        for i, screen_name in enumerate(tqdm(users)):           
             outputs = self.check_status(screen_name, features)
             df = pd.DataFrame([outputs], index=[i])
             logging.debug(outputs)

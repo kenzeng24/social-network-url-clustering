@@ -63,10 +63,15 @@ class ProfileScraper:
                 except Exception as e:
                     outputs[feature] = None
         
-        except tweepy.error.TweepError as error:
-            error_code = error.args[0][0]['code']
+        # except tweepy.TweepyException as error: # tweepy version 4.0
+        #     error_code = error.api_codes[0]
+        except tweepy.error.TweepError as error: # tweepy version 3.0
+            error_code = error.args[0][0]['code']    
             if error_code == 63:
                 outputs['status'] = 'suspended'
+            elif error_code == 50:
+                outputs['status'] = 'not_found'
+            outputs['screen_name'] = screen_name
                 
         return outputs
     
@@ -87,9 +92,8 @@ class ProfileScraper:
         and save results as a CSV file 
         """
         for i, screen_name in enumerate(users):           
-            outputs = self.check_status(screen_name)
-            outputs['name'] = screen_name
-            df = pd.DataFrame(outputs, index=[i])
+            outputs = self.check_status(screen_name, features)
+            df = pd.DataFrame([outputs], index=[i])
             logging.debug(outputs)
             
             # add current row to existing csv file 

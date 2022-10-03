@@ -40,3 +40,18 @@ def aggregate_text(metadata, **kwargs):
 def get_metadata(filename=METADATA_FILE):
     return pd.read_json(filename)
 
+def cluster_tm_analysis(cluster_json=cluster_json, filename=METADATA_FILE, ngram=1, num_topics=10, i_min=100, n_len=0):
+  df_metadata=get_metadata(filename=METADATA_FILE)
+
+  for cluster in cluster_json:
+    subset=df_metadata[df_metadata['url'].isin(cluster)] #filter original metadata with all the urls from a specific cluster
+
+    subset['agg_text']=aggregate_text(subset, i_min=i_min)  #takes subset['id_hash256'] and performs the aggregations
+
+  filtered_data = subset[subset.agg_text.apply(len)>n_len]
+
+  tfidf, features = tfidf_vectorize(filtered_data.agg_text, ngram=ngram) #change ngrams here? predefined vocab can be adjusted
+  
+  outputs = topic_generator(tfidf, features, num_topics=num_topics)
+
+  return outputs[1]

@@ -7,7 +7,7 @@ ROOT = 'drive/MyDrive/CDS_Capstone_2022_Fall'
 METADATA_FILE = os.path.join(ROOT, 'data/capstone_url_metadata.json')
 AGGREGATE_DATA_PATH = os.path.join(ROOT, 'data/data')
 EMBEDDING_PATH = os.path.join(ROOT, 'embedding')
-
+CLUSTER_FILE = os.path.join(root, 'data/cluster_generated_reduced.json')
 
 def clean_text(text):
     '''remove urls from text'''

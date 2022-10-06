@@ -1,6 +1,7 @@
 import pandas as pd 
 import numpy as np 
-import json, re, os 
+import json, re, os
+import spacy, string, nltk
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.decomposition import LatentDirichletAllocation

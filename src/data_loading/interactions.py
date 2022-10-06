@@ -40,6 +40,43 @@ def aggregate_text(metadata, **kwargs):
 def get_metadata(filename=METADATA_FILE):
     return pd.read_json(filename)
 
+def tfidf_vectorize(text_list,vectorizer=None, ngram=1, **kwargs):
+
+    # convert text list to bag of words 
+    if vectorizer is None:
+        vectorizer = n_grams_vectorizer(ngram)
+    bag_of_words = vectorizer.fit_transform(text_list)  # transform our corpus as a bag of words
+    features = vectorizer.get_feature_names()  
+    
+    # convert bag of words to tfidf
+    transformer = TfidfTransformer(
+        norm = None, 
+        smooth_idf = True, 
+        sublinear_tf = True, **kwargs
+    )
+    tfidf = transformer.fit_transform(bag_of_words)
+    return tfidf, features
+
+def topic_generator(tfidf, features, num_topics=10, verbose=False, **kwargs):
+
+    # Fitting LDA model
+    lda = LatentDirichletAllocation(
+        n_components = num_topics, 
+        learning_method='online',
+        random_state=42, **kwargs) #adjust n_components
+
+    doctopic = lda.fit_transform(tfidf)
+
+    # Displaying the top keywords in each topic
+    ls_keywords = []
+    for i,topic in enumerate(lda.components_):
+        word_idx = np.argsort(topic)[::-1][:10]
+        keywords = ', '.join(features[i] for i in word_idx)
+        ls_keywords.append(keywords)
+        if verbose:
+            print(i, keywords) 
+    return doctopic, ls_keywords
+
 def cluster_tm_analysis(cluster_json=CLUSTER_FILE, filename=METADATA_FILE, ngram=1, num_topics=10, i_min=100, n_len=0):
   '''
   Inputs:

@@ -2,6 +2,17 @@ import pandas as pd
 import numpy as np 
 import json, re, os 
 
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.decomposition import LatentDirichletAllocation
+from sklearn import preprocessing
+from nltk import SnowballStemmer
+from nltk.corpus import stopwords
+nltk.download('stopwords')
+
+translator=str.maketrans(string.punctuation, ' ' * len(string.punctuation))
+string.punctuation
+stemmer = SnowballStemmer("english")
+stop_words = set(stopwords.words('english'))
 
 ROOT = 'drive/MyDrive/CDS_Capstone_2022_Fall'
 METADATA_FILE = os.path.join(ROOT, 'data/capstone_url_metadata.json')
@@ -39,6 +50,31 @@ def aggregate_text(metadata, **kwargs):
 
 def get_metadata(filename=METADATA_FILE):
     return pd.read_json(filename)
+
+#this will be used in CountVectorizer
+def tokenize(text):
+    translator = str.maketrans(string.punctuation, ' ' * len(string.punctuation))  # translator that replaces punctuation with empty spaces
+    return [stemmer.stem(i) for i in text.translate(translator).split()]  # stemmer and tokenizing into words
+
+# Tokenize stop words to match 
+stop_words = [tokenize(s)[0] for s in stop_words]
+stop = stop_words 
+full_stopwords = [tokenize(s)[0] for s in stop]
+
+def n_grams_vectorizer(ngram=1, min_df=0.05, max_df=0.95, **kwargs):
+    
+    # TODO: add additional customization for vectorizer 
+    vectorizer = CountVectorizer(
+        stop_words=set(stop),
+        analyzer="word",        # unit of features are single words rather than characters
+        tokenizer=tokenize,      # function to create tokens
+        ngram_range=(0,int(ngram)),       # change num of words co-located
+        strip_accents='unicode', # remove accent characters
+        min_df = min_df,           
+        max_df = max_df, 
+        **kwargs
+    )           # only include words with maximum frequency of 0.95
+    return vectorizer
 
 def tfidf_vectorize(text_list,vectorizer=None, ngram=1, **kwargs):
 

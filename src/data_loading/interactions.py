@@ -41,6 +41,8 @@ def aggregate_interaction_text(id, i_min=1000):
         for data in platform_data:
             if data['i'] > i_min:
                 output_text += clean_text(data['d'].lower()) + " "
+            else:
+                output_text = '<empty> '
     return output_text[:-1] # remove empty space at the end
 
 

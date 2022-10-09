@@ -62,7 +62,7 @@ def training_pipeline(filename=METADATA_TFIDF,
         filename = 'testing-' + filename
         tfidf_filename = 'testing-' + tfidf_filename
     
-    metadata['agg_text'] = aggregate_text(metadata, i_min=100)
+    metadata['agg_text'] = aggregate_text(metadata)
     tfidf_vectors, vectorizer = train_tfidf_vectorizer(
         metadata['agg_text'], 
         filename=tfidf_filename, **kwargs)

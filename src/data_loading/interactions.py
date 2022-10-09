@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np 
 import json, re, os
 import spacy, string, nltk
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.decomposition import LatentDirichletAllocation
@@ -54,9 +54,8 @@ def aggregate_interaction_text(id, i_min=1000, first_n=1000000):
         output = '<empty>'
     return output # remove empty space at the end
 
-
 def aggregate_text(url_ids, filename, **kwargs):
-    """aggregate the interaction text for each url""""
+    """aggregate the interaction text for each url"""
     agg_text_df = pd.DataFrame(columns=['id_hash256', 'agg_text'])
     agg_text_df.to_csv(filename)
     

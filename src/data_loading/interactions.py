@@ -24,8 +24,10 @@ CLUSTER_FILE = os.path.join(ROOT, 'data/cluster_generated_reduced.json')
 
 def clean_text(text):
     '''remove urls from text'''
-    clean_text = re.sub("\n", '', text)
-    return re.sub('http\S+', '', clean_text) 
+    clean_text = re.sub('http\S+', '', text) 
+    clean_text = text.replace('\n', ' ').replace('\r', '')\
+        .translate(str.maketrans('', '', string.punctuation))
+    return clean_text
 
 
 def retrieve_interactions(id):
@@ -39,20 +41,22 @@ def aggregate_interaction_text(id, i_min=1000, first_n=1000000):
     """TODO: add additional filters"""
     result = retrieve_interactions(id)
     output_text = ''
-    for platform_data in result['result'].values():
-        count = 0 
-        for data in platform_data:
-            # use all interactions if number of interactions less than min
-            if len(platform_data) <= first_n or data['i'] > i_min:
-                output_text += clean_text(data['d'].lower()) + " "
-                count += 1 
-            # stop after the first_n posts with high interactions
-            if count > first_n:
-                break
+    for platform, platform_data in result['result'].items():
+        if platform != 'retweet':
+            count = 0 
+            for data in platform_data:
+                # use all interactions if number of interactions less than min
+                if len(platform_data) <= first_n or data['i'] > i_min:
+                    output_text += clean_text(data['d'].lower()) + " "
+                    count += 1 
+                # stop after the first_n posts with high interactions
+                if count > first_n:
+                    break
     output = output_text[:-1]
     if not len(output):
         output = '<empty>'
     return output # remove empty space at the end
+
 
 def aggregate_text(url_ids, filename, **kwargs):
     """aggregate the interaction text for each url"""

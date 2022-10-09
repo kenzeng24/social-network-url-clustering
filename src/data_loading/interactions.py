@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np 
 import json, re, os
 import spacy, string, nltk
+from tqdm.notebook import tqdm
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.decomposition import LatentDirichletAllocation
@@ -38,7 +39,7 @@ def aggregate_interaction_text(id, i_min=1000):
     result = retrieve_interactions(id)
     output_text = ''
     for platform_data in result['result'].values():
-        for data in platform_data:
+        for data in tqdm(platform_data):
             if data['i'] > i_min:
                 output_text += clean_text(data['d'].lower()) + " "
     output = output_text[:-1]
@@ -48,7 +49,7 @@ def aggregate_interaction_text(id, i_min=1000):
 
 
 def aggregate_text(metadata, **kwargs):
-    return metadata.id_hash256.apply(
+    return metadata.id_hash256.progress_apply(
         lambda id: aggregate_interaction_text(id, **kwargs))
 
 

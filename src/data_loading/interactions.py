@@ -39,7 +39,7 @@ def aggregate_interaction_text(id, i_min=1000):
     result = retrieve_interactions(id)
     output_text = ''
     for platform_data in result['result'].values():
-        for data in tqdm(platform_data):
+        for data in platform_data:
             if data['i'] > i_min:
                 output_text += clean_text(data['d'].lower()) + " "
     output = output_text[:-1]

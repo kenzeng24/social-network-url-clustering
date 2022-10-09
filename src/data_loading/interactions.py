@@ -49,6 +49,7 @@ def aggregate_interaction_text(id, i_min=1000):
 
 
 def aggregate_text(metadata, **kwargs):
+    tqdm.pandas()
     return metadata.id_hash256.progress_apply(
         lambda id: aggregate_interaction_text(id, **kwargs))
 

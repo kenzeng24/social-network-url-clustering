@@ -24,7 +24,7 @@ CLUSTER_FILE = os.path.join(ROOT, 'data/cluster_generated_reduced.json')
 
 def clean_text(text):
     '''remove urls from text'''
-    clean_text = re.replace("\n", '', text)
+    clean_text = re.sub("\n", '', text)
     return re.sub('http\S+', '', clean_text) 
 
 

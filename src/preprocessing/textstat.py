@@ -11,6 +11,9 @@ def text_score_generator(filename):
 	
 	#Flesh Reading Ease Score
 	macld_df['FLRE_scre']=macld_df['agg_text'].apply(lambda x: textstat.flesch_reading_ease(x))
+	
+	#coleman_liau_index; higher index corresponds to higher complexity
+	macld_df['Cole_Idx']=macld_df['agg_text'].apply(lambda x: textstat.coleman_liau_index(x))
 
 	#Grade level agg. test of text
 	macld_df['grade_scre']=macld_df['agg_text'].apply(lambda x: textstat.text_standard(x))	

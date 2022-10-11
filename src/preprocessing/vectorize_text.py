@@ -77,6 +77,7 @@ def training_pipeline(filename=METADATA_TFIDF,
 def topic_generator(tfidf, num_topics=10, verbose=False, 
                     filename='topic_model.pickle', **kwargs):
     """train topic model with TFIDF vectors"""
+    #This generates topics and a pickled LDA model 
     assert not filename or not os.path.exists(filename), 'topic model already exists'
     # Fitting LDA model
     lda = LatentDirichletAllocation(
@@ -85,15 +86,16 @@ def topic_generator(tfidf, num_topics=10, verbose=False,
         random_state=42, **kwargs) #adjust n_components
     
     doctopic = lda.fit_transform(tfidf)
-    if filename: pickle.dump(lda, open(filename, "wb"))
-    return doctopic, lda
+    if filename: pickle.dump(lda, open(filename, "wb")) 
+    return doctopic, lda 
 
 
 def topic_transform(tfidf_vectors, filename=TOPIC_MODEL):
     """load topic model and transform tfidf vectors in topic vectors """
+    #this function loads an existing lda model and maximizes linear separation
     with open(filename, 'rb') as f:
         lda = pickle.load(f)
-    return lda.transform(tfidf_vectors)
+    return lda.transform(tfidf_vectors) 
 
 
 def get_topics(topic_model_filename=TOPIC_MODEL, tfidf_filename=TFIDF_FILE):

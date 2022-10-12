@@ -47,6 +47,7 @@ def train_tfidf_vectorizer(
 
 def tfidf_transform(text_list, filename=TFIDF_FILE):
     """load tfidf file from path """
+    #Outputs tfidf transformed vectors from the input text
     with open(filename, 'rb') as f:
         vectorizer = pickle.load(f)
     return vectorizer.transform(text_list)

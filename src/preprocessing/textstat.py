@@ -1,12 +1,11 @@
 import textstat 
-import json
+import json, os
+import pandas as pd 
+from src.data_loading.interactions import ROOT
 
-root='drive/MyDrive/CDS_Capstone_2022_Fall'
-
-filename=''
 
 def text_score_generator(filename):
-	macld = os.path.join(root, 'data/'+f'filename')
+	macld = os.path.join(ROOT, 'data', filename)
 	macld_df=pd.read_json(macld)
 	
 	#Flesh Reading Ease Score

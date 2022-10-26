@@ -1,6 +1,7 @@
-import spacy, string, nltk,os,pickle
+import spacy, string, nltk, os, pickle
 import numpy as np 
 import pandas as pd 
+import scipy.sparse as sparse
 
 from src.data_loading import interactions
 
@@ -14,9 +15,10 @@ nltk.download('stopwords')
 stemmer = SnowballStemmer("english")
 
 # TODO: replace these with the actual files
-TFIDF_FILE = "tfidf.pickle" 
-METADATA_TFIDF = 'metadata_tfidf.json'
-TOPIC_MODEL='topic_model.pickle'
+TFIDF_FILE = os.path.join(interactions.ROOT, 'models', "tfidf.pickle")
+METADATA_TFIDF = os.path.join(interactions.ROOT, 'data', 'metadata_tfidf.json')
+TFIDF_MATRIX = os.path.join(interactions.ROOT, 'data', 'sparse_matrix.npz')
+TOPIC_MODEL = os.path.join(interactions.ROOT, 'models', 'topic_model.pickle')
 
 def tokenize(text):
     # translator that replaces punctuation with empty spaces
@@ -30,7 +32,7 @@ def train_tfidf_vectorizer(
         text_list, 
         filename=TFIDF_FILE ,
         max_features=1000, stop_words=stop_words, **kwargs):
-    
+    """Outputs tfidf transformed vectors from the input text"""
     assert not filename or not os.path.exists(filename), 'tfidf file already exists'
     
     vectorizer = TfidfVectorizer(
@@ -47,7 +49,6 @@ def train_tfidf_vectorizer(
 
 def tfidf_transform(text_list, filename=TFIDF_FILE):
     """load tfidf file from path """
-    #Outputs tfidf transformed vectors from the input text
     with open(filename, 'rb') as f:
         vectorizer = pickle.load(f)
     return vectorizer.transform(text_list)
@@ -63,11 +64,13 @@ def training_pipeline(filename=METADATA_TFIDF,
         filename = 'testing-' + filename
         tfidf_filename = 'testing-' + tfidf_filename
     
-    metadata['agg_text'] = aggregate_text(metadata)
+    metadata['agg_text'] = interactions.aggregate_text(metadata)
     tfidf_vectors, vectorizer = train_tfidf_vectorizer(
         metadata['agg_text'], 
         filename=tfidf_filename, **kwargs)
     
+    sparse.save_npz(TFIDF_MATRIX, tfidf_vectors)
+
     metadata['tfidf'] = tfidf_vectors.toarray().tolist()
     if testing: filename = 'testing-' + filename
     if filename and not os.path.exists(filename):
@@ -78,7 +81,6 @@ def training_pipeline(filename=METADATA_TFIDF,
 def topic_generator(tfidf, num_topics=10, verbose=False, 
                     filename='topic_model.pickle', **kwargs):
     """train topic model with TFIDF vectors"""
-    #This generates topics and a pickled LDA model 
     assert not filename or not os.path.exists(filename), 'topic model already exists'
     # Fitting LDA model
     lda = LatentDirichletAllocation(
@@ -87,16 +89,15 @@ def topic_generator(tfidf, num_topics=10, verbose=False,
         random_state=42, **kwargs) #adjust n_components
     
     doctopic = lda.fit_transform(tfidf)
-    if filename: pickle.dump(lda, open(filename, "wb")) 
-    return doctopic, lda 
+    if filename: pickle.dump(lda, open(filename, "wb"))
+    return doctopic, lda
 
 
 def topic_transform(tfidf_vectors, filename=TOPIC_MODEL):
     """load topic model and transform tfidf vectors in topic vectors """
-    #this function loads an existing lda model and maximizes linear separation
     with open(filename, 'rb') as f:
         lda = pickle.load(f)
-    return lda.transform(tfidf_vectors) 
+    return lda.transform(tfidf_vectors)
 
 
 def get_topics(topic_model_filename=TOPIC_MODEL, tfidf_filename=TFIDF_FILE):

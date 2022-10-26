@@ -24,7 +24,7 @@ def get_tfidf_dataset(
     # keep 
     X = tfidf_sparse[filtered_nonnull.index,:]
     y = filtered_nonnull['Credibility_Rank'] # for now 
-    urls = metadata['url'].iloc[filtered_nonnull.index]
+    urls = metadata[['url', 'id_hash256']].iloc[filtered_nonnull.index]
     return X,y,urls
 
 
@@ -41,5 +41,5 @@ def get_unabeled_urls(
 
     unlabeled = MBFC_set[MBFC_set['NaNs_Per_Row'] !=0]
     X = tfidf_sparse[unlabeled.index,:]
-    urls = metadata['url'].iloc[unlabeled.index]
+    urls = metadata[['url', 'id_hash256']].iloc[unlabeled.index]
     return X,urls

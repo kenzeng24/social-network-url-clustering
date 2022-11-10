@@ -23,10 +23,11 @@ EMBEDDING_PATH = os.path.join(ROOT, 'embedding')
 CLUSTER_FILE = os.path.join(ROOT, 'data/cluster_generated_reduced.json')
 
 def clean_text(text):
-    '''remove urls from text'''
+
+    # remove URLs 
     clean_text = re.sub('http\S+', '', text) 
-    clean_text = text.replace('\n', ' ').replace('\r', '')\
-        .translate(str.maketrans('', '', string.punctuation))
+    # remove non-alphanumeric characters 
+    clean_text = re.compile('[\W_]+').sub('', clean_text)
     return clean_text
 
 
@@ -38,7 +39,11 @@ def retrieve_interactions(id):
 
 
 def aggregate_interaction_text(id, i_min=1000, first_n=1000000):
-    """TODO: add additional filters"""
+    """
+    combine and clean the interaction text for a urlid 
+        only analyzing the first_n interaction texts from each domain 
+        with more than i_min interactions 
+    """
     result = retrieve_interactions(id)
     output_text = ''
     for platform, platform_data in result['result'].items():
@@ -52,14 +57,22 @@ def aggregate_interaction_text(id, i_min=1000, first_n=1000000):
                 # stop after the first_n posts with high interactions
                 if count > first_n:
                     break
+    # ignore the empty space at the end
     output = output_text[:-1]
+
     if not len(output):
         output = '<empty>'
     return output # remove empty space at the end
 
 
 def aggregate_text(url_ids, filename, **kwargs):
-    """aggregate the interaction text for each url"""
+    """
+    aggregate the interaction text for each urlid 
+    and save results as a csv file under filename
+    """
+    if os.path.exists(filename):
+        raise ValueError(f'file {filename} already exists. use a different filename')
+        
     agg_text_df = pd.DataFrame(columns=['id_hash256', 'agg_text'])
     agg_text_df.to_csv(filename)
     

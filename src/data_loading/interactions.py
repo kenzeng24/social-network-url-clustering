@@ -27,7 +27,7 @@ def clean_text(text):
     # remove URLs 
     clean_text = re.sub('http\S+', '', text) 
     # remove non-alphanumeric characters 
-    clean_text = re.compile('[\W_]+').sub('', clean_text)
+    clean_text = re.compile('[^a-zA-Z\d\s]+').sub('', clean_text)
     return clean_text
 
 

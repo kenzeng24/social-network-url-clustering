@@ -72,7 +72,7 @@ def aggregate_text(url_ids, filename, **kwargs):
     """
     if os.path.exists(filename):
         raise ValueError(f'file {filename} already exists. use a different filename')
-        
+
     agg_text_df = pd.DataFrame(columns=['id_hash256', 'agg_text'])
     agg_text_df.to_csv(filename)
     
@@ -86,6 +86,3 @@ def get_metadata(filename=METADATA_FILE):
     return pd.read_json(filename)
 
     
-
-
-

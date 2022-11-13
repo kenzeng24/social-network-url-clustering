@@ -16,7 +16,7 @@ def get_tfidf_dataset(
     get TFIDF vectors and MBFC labels of URLs in the MBFC dataset
     """
     MBFC_set=pd.read_csv(labels_file)
-    tfidf_sparse=sparse.load_npz(tfidf_matrix_file)
+    tfidf_sparse=load_npz(tfidf_matrix_file)
     metadata = pd.read_json(metadata_file)
 
     filtered_nonnull = MBFC_set[MBFC_set['NaNs_Per_Row'] ==0]
@@ -55,7 +55,7 @@ def get_unabeled_urls(
     get TFIDF vectors of URLs without an MBFC label 
     """
     MBFC_set=pd.read_csv(labels_file)
-    tfidf_sparse=sparse.load_npz(tfidf_matrix_file)
+    tfidf_sparse=load_npz(tfidf_matrix_file)
     metadata = pd.read_json(metadata_file)
 
     unlabeled = MBFC_set[MBFC_set['NaNs_Per_Row'] !=0]

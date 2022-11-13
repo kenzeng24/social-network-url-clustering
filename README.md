@@ -1,8 +1,20 @@
 # social-network-url-clustering
 
+## getting started
+
+```bash
+git clone https://github.com/kenzeng24/social-network-url-clustering.git
+```
+
 ```bash
 cd /path/to/this/directory
 export PYTHONPATH=$(pwd):$PYTHONPATH
+```
+
+To load the functions from github repo into jupyter notebook 
+```python
+import sys
+sys.path.append('<path to social-network-url-clustering>')
 ```
 
 ## Usage 

@@ -17,15 +17,15 @@ from src.twitter_api import config
 
 # update config with your keys 
 config.twitter_app_auth = {
-    'consumer_key': 'XXXX,
+    'consumer_key': 'XXXX',
     'consumer_secret': 'XXXX',
     'access_token': 'XXXX',
     'access_token_secret': 'XXXX',
 }
-# 
+
 scraper = ProfileScraper()
 users = ["AnjneyMidha", "oddlikepie", "RealDonaldTrump"]
-df = scraper.run(users, save_file=None)
+scraper.run(users, save_file=None)
 ```
 
 ### Data Processing 
@@ -38,7 +38,7 @@ from src.data_loading.interactions import aggregate_text, get_metadata
 
 # get metadatafile and save outputs to <agg_output_filename>
 metadata = get_metadata('<path-to-metedata>')
-aggregate_text(metadatafile.id_hash256, '<path-to-output'>)
+aggregate_text(metadatafile.id_hash256, '<path-to-output>')
 ```
 
 To convert aggregate text into TFIDF vectors and also 
@@ -54,21 +54,27 @@ tfidf_vectors, vectorizer = train_tfidf_vectorizer(
     metadata_aggregated_balanced.agg_text,
     filename='<tfidf-vectorizer-filename>'
 )
-scipy.sparse.save_npz('<tfidf-matrix-filename'>, tfidf_vectors)
+scipy.sparse.save_npz('<tfidf-matrix-filename>', tfidf_vectors)
 ```
 
 ### Model training 
 
+To load the traininng data: 
+
 ```python 
-X,y,urls = get_tfidf_dataset()
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-model = LogisticRegression(**result.best_params_).fit(X=X_train,y=y_train)
+X, y, urls = get_balanced_tfidf_data()
 ```
 
 And to get URLs unlabeled by MBFC: 
 
 ```python 
 X_unlabeled, urls_unlabeled = get_unabeled_urls()
+```
+
+To perform cross validation:
+
+```python 
+params = logistic_regression_cv(random_state=824)
 ```
 
 

@@ -1,12 +1,83 @@
 import os
 import pandas as pd 
 import numpy as np 
+import pickle
 from scipy.sparse import load_npz, vstack
 from src.data_loading.interactions import ROOT, METADATA_FILE, get_metadata
 from src.preprocessing.vectorize_text import TFIDF_MATRIX
 from sklearn.model_selection import train_test_split
 
 MBFC_LABELS_PATH = os.path.join(ROOT, 'data/Classification_Labels.csv')
+
+
+def debias(X):
+    """
+    Remove the names of political organizations or personalities from the TFIDF vectors 
+    """
+    tfidf_file = os.path.join(ROOT, 'models/balanced-dataset-tfidf-vectorizer.pickle')
+    with open(tfidf_file, 'rb') as f:
+        vectorizer = pickle.load(f)
+    features = {v:k for k,v in vectorizer.vocabulary_.items()}
+
+    filtered_features = [
+        i for i, x in features.items()
+        if x not in [
+            'democraci', 
+            'trump', 
+            'biden', 
+            'breitbartnew', 
+            'obama',
+            'donald', 
+            'foxnew', 
+            'donaldjtrumpjr',
+            'zerohedg', 
+            'sentedcruz',
+            'repmtg',
+            'jsolomonreport',
+            'gregabbotttx',
+            'jimjordan',
+            'timcast',
+            'elonmusk',
+            'hawleymo',
+            "libsoftiktok",
+            "alleg",
+            "raheemkassam",
+            "joerogan",
+            "hawleymo",
+            "laurenboebert",
+            "tomfitton",
+            "jennaellisesq",
+            "mzhemingway",
+            "dineshdsouza",
+            "sebgorka",
+            "georgepapa19",
+            "randpaul",
+            "reuter",
+            "jackposobiec",
+            "thebabylonbe",
+            "mailonlin",
+            "tomwint",
+            "realdailywir",
+            "repthomasmassi",
+            "tpostmillenni",
+            "repmattgaetz",
+            "disclosetv",
+            "thehil",
+            "therealkeean",
+            "mrandyngo",
+            "phillewi",
+            "ctvnew",
+            "truenorthcentr",
+            "repkinzing",
+            "noblenatl",
+            "melissarusso4ni",
+            "njdotcom",
+            "965tdi",
+            "artistofthesumm",
+            "laurenjauregui",
+        ] 
+    ]
+    return X[:, filtered_features]
 
 
 def get_tfidf_dataset(
@@ -119,3 +190,25 @@ def get_unlabeled_dataset():
     labeled_metadata = combined_metadata[combined_metadata['label'].isna()]
     return labeled_metadata, X[labeled_metadata.index], twitter_data.iloc[labeled_metadata.index]
 
+
+def split_data_for_training(dataset='combined', political_debias=True, random_state=824):
+
+    combined_metadata, X, twitter_data = get_labeled_dataset() #balanced tfidf matrix 
+    if political_debias:
+        X = debias(X)
+    y = 1*(combined_metadata['label']==1)
+
+    if dataset == 'combined':
+        combined_data = pd.concat([twitter_data.reset_index(drop=True), pd.DataFrame(X.toarray())], axis=1)
+        combined_data.fillna(0, inplace=True)
+        X = combined_data.drop(columns='id_hash256')
+    elif dataset == 'twiitter':
+        X = twitter_data
+    elif dataset == 'tfidf':
+        pass 
+    else: 
+        raise ValueError('Not implemented yet')
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=random_state)
+    X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=0.5, random_state=random_state)
+    return X_train, X_val, X_test, y_train, y_val, y_test

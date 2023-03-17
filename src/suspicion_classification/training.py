@@ -1,11 +1,12 @@
 
-import pandas as pd 
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
+import pandas as pd
+import numpy as np 
 from sklearn.model_selection import (
     RandomizedSearchCV, 
     RepeatedStratifiedKFold, 
-    train_test_split
+    train_test_split, 
+    cross_validate, 
+    KFold
 )
 from scipy.stats import loguniform
 from sklearn.linear_model import LogisticRegression 
@@ -14,8 +15,15 @@ from sklearn import svm
 from catboost import CatBoostClassifier
 import xgboost as xgb 
 from lightgbm import LGBMClassifier
-from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
+from sklearn.metrics import (
+    accuracy_score, 
+    roc_auc_score, 
+    f1_score,  
+    make_scorer, 
+    recall_score
+)
 from src.data_loading.training_data import get_balanced_tfidf_data
+from sklearn.model_selection import cross_validate
 
 
 def random_search_cv(model, space, random_state=824):
@@ -87,3 +95,32 @@ def train_models(X,y, models=None):
             'AUC': roc_auc_score(y_test, models[col].predict_proba(X_test)[:,1]), 
         })
     return models, preds, test_results
+
+
+def cross_validate(X,y, random_state=824):
+    scoring = {
+        'accuracy': make_scorer(accuracy_score),
+        'auc': make_scorer(roc_auc_score, needs_proba=True),
+        'recall': make_scorer(recall_score), 
+        'f1': make_scorer(f1_score)
+    }
+
+    results = {}
+
+    models = {
+        'random-forest': RandomForestClassifier(verbose=False, random_state=random_state), 
+        'catboost': CatBoostClassifier(verbose=False, random_state=random_state), 
+        'logistic': LogisticRegression(solver='liblinear',penalty='l1'),
+        'xgboost': xgb.XGBClassifier(random_state=random_state),
+        'lightgbm': LGBMClassifier(random_state=random_state), 
+    }
+    cv = KFold(random_state=random_state, shuffle=True)
+
+    for name, model in models.items():
+        scores = cross_validate(model, X, y, scoring=scoring, cv=cv)
+        results[name] = scores
+        print(f'model: {name}')
+        for key, values in scores.items():
+            print(f'{key}:{np.mean(values)} +- {np.std(values)}')
+        print('-'*40)
+    return results 

@@ -185,13 +185,14 @@ def get_labeled_dataset():
     labeled_metadata = combined_metadata[combined_metadata['label'].notna()]
     return labeled_metadata, X[labeled_metadata.index], twitter_data.iloc[labeled_metadata.index]
 
+
 def get_unlabeled_dataset(): 
     combined_metadata, X, twitter_data = load_data()
     labeled_metadata = combined_metadata[combined_metadata['label'].isna()]
     return labeled_metadata, X[labeled_metadata.index], twitter_data.iloc[labeled_metadata.index]
 
 
-def split_data_for_training(dataset='combined', political_debias=True, random_state=824):
+def load_and_debias_data(dataset='combined', political_debias=True):
 
     combined_metadata, X, twitter_data = get_labeled_dataset() #balanced tfidf matrix 
     if political_debias:
@@ -199,7 +200,9 @@ def split_data_for_training(dataset='combined', political_debias=True, random_st
     y = 1*(combined_metadata['label']==1)
 
     if dataset == 'combined':
-        combined_data = pd.concat([twitter_data.reset_index(drop=True), pd.DataFrame(X.toarray())], axis=1)
+        combined_data = pd.concat(
+            [twitter_data.reset_index(drop=True), pd.DataFrame(X.toarray())], axis=1
+        )
         combined_data.fillna(0, inplace=True)
         X = combined_data.drop(columns='id_hash256')
     elif dataset == 'twiitter':
@@ -209,6 +212,5 @@ def split_data_for_training(dataset='combined', political_debias=True, random_st
     else: 
         raise ValueError('Not implemented yet')
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=random_state)
-    X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=0.5, random_state=random_state)
-    return X_train, X_val, X_test, y_train, y_val, y_test
+    return X, y, combined_metadata
+

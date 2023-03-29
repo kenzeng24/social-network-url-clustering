@@ -20,6 +20,9 @@ METADATA_TFIDF = os.path.join(interactions.ROOT, 'data', 'metadata_tfidf.json')
 TFIDF_MATRIX = os.path.join(interactions.ROOT, 'data', 'sparse_matrix.npz')
 TOPIC_MODEL = os.path.join(interactions.ROOT, 'models', 'topic_model.pickle')
 
+
+
+
 def tokenize(text):
     # translator that replaces punctuation with empty spaces
     translator = str.maketrans(string.punctuation, ' ' * len(string.punctuation))  

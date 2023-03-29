@@ -9,8 +9,7 @@ from sklearn.model_selection import train_test_split
 
 MBFC_LABELS_PATH = os.path.join(ROOT, 'data/Classification_Labels.csv')
 
-
-def debias(X):
+def get_filtered_features():
     """
     Remove the names of political organizations or personalities from the TFIDF vectors 
     """
@@ -19,65 +18,84 @@ def debias(X):
         vectorizer = pickle.load(f)
     features = {v:k for k,v in vectorizer.vocabulary_.items()}
 
+    political_entities = [
+        'cnn',
+        'democraci', 
+        'trump', 
+        'biden', 
+        'breitbartnew', 
+        'obama',
+        'donald', 
+        'foxnew', 
+        'donaldjtrumpjr',
+        'zerohedg', 
+        'sentedcruz',
+        'repmtg',
+        'jsolomonreport',
+        'gregabbotttx',
+        'jimjordan',
+        'timcast',
+        'elonmusk',
+        'hawleymo',
+        "libsoftiktok",
+        "alleg",
+        "raheemkassam",
+        "joerogan",
+        "hawleymo",
+        "laurenboebert",
+        "tomfitton",
+        "jennaellisesq",
+        "mzhemingway",
+        "dineshdsouza",
+        "sebgorka",
+        "georgepapa19",
+        "randpaul",
+        "reuter",
+        "jackposobiec",
+        "thebabylonbe",
+        "mailonlin",
+        "tomwint",
+        "realdailywir",
+        "repthomasmassi",
+        "tpostmillenni",
+        "repmattgaetz",
+        "disclosetv",
+        "thehil",
+        "therealkeean",
+        "mrandyngo",
+        "phillewi",
+        "ctvnew",
+        "truenorthcentr",
+        "repkinzing",
+        "noblenatl",
+        "melissarusso4ni",
+        "njdotcom",
+        "965tdi",
+        "artistofthesumm",
+        "laurenjauregui",
+        "democrat", 
+        "joe", 
+        "prisonplanet",
+        "hunter", 
+        "pelosi", 
+        "breaking911", 
+        "nypost", 
+        "fauci",
+        "republican",
+        "rsbnetwork",
+        'nbcnew',
+        "trudeau",
+    ]
+    misc_stop_words = [
+        'none','video','also', 'year', 'im', 'said', 'need', 'one', 
+        'much', 'via', '1', '2', '3', '4', '5', 'day', 'look', 'shes', 'us',
+        'e', 'dont', 'n', 'la'
+    ]
     filtered_features = [
         i for i, x in features.items()
-        if x not in [
-            'democraci', 
-            'trump', 
-            'biden', 
-            'breitbartnew', 
-            'obama',
-            'donald', 
-            'foxnew', 
-            'donaldjtrumpjr',
-            'zerohedg', 
-            'sentedcruz',
-            'repmtg',
-            'jsolomonreport',
-            'gregabbotttx',
-            'jimjordan',
-            'timcast',
-            'elonmusk',
-            'hawleymo',
-            "libsoftiktok",
-            "alleg",
-            "raheemkassam",
-            "joerogan",
-            "hawleymo",
-            "laurenboebert",
-            "tomfitton",
-            "jennaellisesq",
-            "mzhemingway",
-            "dineshdsouza",
-            "sebgorka",
-            "georgepapa19",
-            "randpaul",
-            "reuter",
-            "jackposobiec",
-            "thebabylonbe",
-            "mailonlin",
-            "tomwint",
-            "realdailywir",
-            "repthomasmassi",
-            "tpostmillenni",
-            "repmattgaetz",
-            "disclosetv",
-            "thehil",
-            "therealkeean",
-            "mrandyngo",
-            "phillewi",
-            "ctvnew",
-            "truenorthcentr",
-            "repkinzing",
-            "noblenatl",
-            "melissarusso4ni",
-            "njdotcom",
-            "965tdi",
-            "artistofthesumm",
-            "laurenjauregui",
-        ] 
+        if x not in  political_entities+ misc_stop_words 
     ]
-    return X[:, filtered_features]
+    return filtered_features
 
 
 def get_tfidf_dataset(
@@ -194,9 +212,11 @@ def get_unlabeled_dataset():
 
 def load_and_debias_data(dataset='combined', political_debias=True):
 
+    filtered_features = None
     combined_metadata, X, twitter_data = get_labeled_dataset() #balanced tfidf matrix 
     if political_debias:
-        X = debias(X)
+        filtered_features = get_filtered_features()
+        X = X[:, filtered_features]
     y = 1*(combined_metadata['label']==1)
 
     if dataset == 'combined':
@@ -212,5 +232,5 @@ def load_and_debias_data(dataset='combined', political_debias=True):
     else: 
         raise ValueError('Not implemented yet')
     
-    return X, y, combined_metadata
+    return X, y, combined_metadata, filtered_features
 

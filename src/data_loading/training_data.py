@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 MBFC_LABELS_PATH = os.path.join(ROOT, 'data/Classification_Labels.csv')
 
-def get_filtered_features():
+def get_filtered_features(additional_removed_words=[]):
     """
     Remove the names of political organizations or personalities from the TFIDF vectors 
     """
@@ -87,13 +87,15 @@ def get_filtered_features():
         "trudeau",
     ]
     misc_stop_words = [
-        'none','video','also', 'year', 'im', 'said', 'need', 'one', 
-        'much', 'via', '1', '2', '3', '4', '5', 'day', 'look', 'shes', 'us',
-        'e', 'dont', 'n', 'la'
+        'none','video', 'also', 'year', 'im', 
+        'said', 'need', 'one', 'much', 'via', 
+        '1', '2', '3', '4', '5', 'day', 'look', 'shes', 'us',
+        'e', 'dont', 'n', 'la', 'es', 'il', 'se', 'de', 'je',
     ]
     filtered_features = [
         i for i, x in features.items()
-        if x not in  political_entities+ misc_stop_words 
+        if x not in  
+        political_entities + misc_stop_words + additional_removed_words
     ]
     return filtered_features
 
@@ -210,12 +212,12 @@ def get_unlabeled_dataset():
     return labeled_metadata, X[labeled_metadata.index], twitter_data.iloc[labeled_metadata.index]
 
 
-def load_and_debias_data(dataset='combined', political_debias=True):
+def load_and_debias_data(dataset='combined', political_debias=True, additional_removed_words=[]):
 
     filtered_features = None
     combined_metadata, X, twitter_data = get_labeled_dataset() #balanced tfidf matrix 
     if political_debias:
-        filtered_features = get_filtered_features()
+        filtered_features = get_filtered_features(additional_removed_words)
         X = X[:, filtered_features]
     y = 1*(combined_metadata['label']==1)
 

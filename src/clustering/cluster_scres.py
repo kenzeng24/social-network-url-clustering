@@ -21,6 +21,7 @@ def get_cluster_scores(cluster_json, scores):
     #merge original urls with scores
     urls_ss=pd.merge(ss_df, merged_urls_meta, how='inner') 
     avg_cluster_susscores={}
+    
     for i in range(len(updated_cluster.columns)):
       ith_cluster=updated_cluster.iloc[:,i].to_frame()
       ith_cluster=ith_cluster.rename(columns={i:'url'})
@@ -28,6 +29,7 @@ def get_cluster_scores(cluster_json, scores):
       merged_urls=pd.merge(ith_cluster, urls_ss, how='inner')
       avg_sus_score=merged_urls.score.mean()
       avg_cluster_susscores[i]=avg_sus_score
+
     acs=pd.DataFrame(avg_cluster_susscores, index=[0])
     mod_acs=acs.T
     mod_acs=mod_acs.reset_index()

@@ -7,6 +7,9 @@ import numpy as np
 
 
 def dimensionality_reduction(X,method='TSNE'):
+    """
+    Apply PCA with TSNE to the input data 
+    """
     scaler = StandardScaler()
     reducer = PCA(random_state=824)
     X_reduced = reducer.fit_transform(scaler.fit_transform(X))
@@ -16,7 +19,9 @@ def dimensionality_reduction(X,method='TSNE'):
 
 
 def visualize_clusters(X_reduced_tsne, y):
-
+    """
+    Plot the scatterplot of the 2D representation of the data
+    """
     figure(figsize=(6, 5), dpi=200)
 
     for i in [1,-1]:

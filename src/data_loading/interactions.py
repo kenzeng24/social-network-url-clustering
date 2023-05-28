@@ -1,7 +1,7 @@
 import pandas as pd 
 import numpy as np 
 import json, re, os
-import spacy, string, nltk
+import string, nltk
 from tqdm import tqdm
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -9,7 +9,7 @@ from sklearn.decomposition import LatentDirichletAllocation
 from sklearn import preprocessing
 from nltk import SnowballStemmer
 from nltk.corpus import stopwords
-nltk.download('stopwords')
+nltk.download('stopwords',  quiet=True)
 
 translator=str.maketrans(string.punctuation, ' ' * len(string.punctuation))
 string.punctuation

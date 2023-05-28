@@ -21,19 +21,30 @@ For the purpose of building a fake news detection model, we primarily used the C
 
 ## getting started
 
+Initial step: Begin by cloning the repository to obtain the project files.
+
 ```bash
 git clone https://github.com/kenzeng24/social-network-url-clustering.git
 ```
+
+Next, proceed to install the necessary packages by executing the following command:
+
+```bash
+pip install -r requirements.txt
+```
+
+To enhance accessibility, add the default path to the PYTHONPATH variable using the subsequent instructions:
 
 ```bash
 cd /path/to/this/directory
 export PYTHONPATH=$(pwd):$PYTHONPATH
 ```
+Lastly, to seamlessly incorporate the functions from the GitHub repository into your Jupyter Notebook, employ the subsequent Python code:
 
-To load the functions from github repo into jupyter notebook 
 ```python
 import sys
-sys.path.append('<path to social-network-url-clustering>')
+root = '<path to social-network-url-clustering>'
+sys.path.append(root)
 ```
 
 ## Usage 
@@ -80,7 +91,6 @@ To convert aggregate text into TFIDF vectors and also
 import scipy.sparse import save_npz
 from src.data_loading.aggregated_text import load_aggregated_data
 
-)
 metadata_aggregated_balanced = load_aggregated_data() 
 
 tfidf_vectors, vectorizer = train_tfidf_vectorizer(
@@ -95,19 +105,43 @@ scipy.sparse.save_npz('<tfidf-matrix-filename>', tfidf_vectors)
 To load the traininng data: 
 
 ```python 
-X, y, urls = get_balanced_tfidf_data()
+
+features, targets, combined_metadata, filtered_features= training_data\
+    .load_and_remove_politicial_entities(root=root)
 ```
 
-And to get URLs unlabeled by MBFC: 
+To perform cross validation with a dictionary of models: 
 
 ```python 
-X_unlabeled, urls_unlabeled = get_unabeled_urls()
+from src.suspicion_classification.training import default_models
+models = default_models()
 ```
 
-To perform cross validation:
+Or if you want to define the dictionary of models manually
+
+```python
+from sklearn.linear_model import LogisticRegression 
+from sklearn.ensemble import RandomForestClassifier
+from catboost import CatBoostClassifier
+import xgboost as xgb 
+from lightgbm import LGBMClassifier
+
+models = {
+    'random-forest': RandomForestClassifier(verbose=False, random_state=824), 
+    'catboost': CatBoostClassifier(verbose=False, random_state=824), 
+    'logistic': LogisticRegression(solver='liblinear',penalty='l1'),
+    'xgboost': xgb.XGBClassifier(random_state=824),
+    'lightgbm': LGBMClassifier(random_state=824), 
+}
+```
+To perform cross validation, you can simply call the function `model_cross_validate`: 
 
 ```python 
-params = logistic_regression_cv(random_state=824)
+from src.suspicion_classification.training import model_cross_validate
+
+results = model_cross_validate(
+    features, targets, models=models, verbose=True
+)
 ```
 
 ## 

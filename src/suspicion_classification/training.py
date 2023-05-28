@@ -22,14 +22,14 @@ from sklearn.metrics import (
     make_scorer, 
     recall_score
 )
-from src.data_loading.training_data import get_balanced_tfidf_data
+from src.data_loading.training_data import load_and_remove_politicial_entities, ROOT
 from sklearn.model_selection import cross_validate
 
 
-def random_search_cv(model, space, random_state=824):
+def random_search_cv(model, space, root=ROOT, random_state=824):
     
     # split training and testing data 
-    X, y, _ = get_balanced_tfidf_data()
+    X, y, _, _ = load_and_remove_politicial_entities(root=root)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random_state)
     
     # random search over 10-fold cross validation 
@@ -97,16 +97,7 @@ def train_models(X,y, models=None):
     return models, preds, test_results
 
 
-def cross_validate(X,y, random_state=824):
-    scoring = {
-        'accuracy': make_scorer(accuracy_score),
-        'auc': make_scorer(roc_auc_score, needs_proba=True),
-        'recall': make_scorer(recall_score), 
-        'f1': make_scorer(f1_score)
-    }
-
-    results = {}
-
+def default_models(random_state=824):
     models = {
         'random-forest': RandomForestClassifier(verbose=False, random_state=random_state), 
         'catboost': CatBoostClassifier(verbose=False, random_state=random_state), 
@@ -114,13 +105,32 @@ def cross_validate(X,y, random_state=824):
         'xgboost': xgb.XGBClassifier(random_state=random_state),
         'lightgbm': LGBMClassifier(random_state=random_state), 
     }
+    return models
+
+
+def model_cross_validate(X,y, models=None, random_state=824, verbose=False):
+    """
+    Perform cross validation over a dictionary of different models 
+    """
+    scoring = {
+        'accuracy': make_scorer(accuracy_score),
+        'auc': make_scorer(roc_auc_score, needs_proba=True),
+        'recall': make_scorer(recall_score), 
+        'f1': make_scorer(f1_score)
+    }
+    results = {}
+
+    if models is None:
+        models = default_models(random_state=random_state) 
+
     cv = KFold(random_state=random_state, shuffle=True)
 
     for name, model in models.items():
         scores = cross_validate(model, X, y, scoring=scoring, cv=cv)
         results[name] = scores
-        print(f'model: {name}')
-        for key, values in scores.items():
-            print(f'{key}:{np.mean(values)} +- {np.std(values)}')
-        print('-'*40)
+        if verbose:
+            print(f'model: {name}')
+            for key, values in scores.items():
+                print(f'{key}:{round(np.mean(values),3)} +- {round(np.std(values),3)}')
+            print('-'*40)
     return results 

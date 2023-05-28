@@ -1,4 +1,7 @@
-import spacy, string, nltk, os, pickle
+import string
+import nltk
+import os
+import pickle
 import numpy as np 
 import pandas as pd 
 import scipy.sparse as sparse
@@ -10,7 +13,7 @@ from sklearn.decomposition import LatentDirichletAllocation
 from sklearn import preprocessing
 from nltk import SnowballStemmer
 from nltk.corpus import stopwords
-nltk.download('stopwords')
+nltk.download('stopwords', quiet=True)
 
 stemmer = SnowballStemmer("english")
 
@@ -20,8 +23,6 @@ TFIDF_FILE = os.path.join(interactions.ROOT, 'models', "tfidf-vectorizer.pickle"
 METADATA_TFIDF = os.path.join(interactions.ROOT, 'data', 'metadata_tfidf.json')
 TFIDF_MATRIX = os.path.join(interactions.ROOT, 'data', 'sparse_matrix.npz')
 TOPIC_MODEL = os.path.join(interactions.ROOT, 'models', 'topic_model.pickle')
-
-
 
 
 def tokenize(text):

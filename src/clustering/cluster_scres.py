@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 
 cluster_files = os.path.join(root, 'data/cluster_generated_reduced.json')
 suspicion_scores = os.path.join(root, 'data/20221205-suspicion-scores.csv')

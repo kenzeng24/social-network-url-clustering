@@ -11,7 +11,6 @@ from sklearn.model_selection import (
 from scipy.stats import loguniform
 from sklearn.linear_model import LogisticRegression 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import svm
 from catboost import CatBoostClassifier
 import xgboost as xgb 
 from lightgbm import LGBMClassifier

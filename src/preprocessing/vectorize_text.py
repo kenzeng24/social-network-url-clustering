@@ -15,6 +15,7 @@ nltk.download('stopwords')
 stemmer = SnowballStemmer("english")
 
 # TODO: replace these with the actual files
+
 TFIDF_FILE = os.path.join(interactions.ROOT, 'models', "tfidf-vectorizer.pickle")
 METADATA_TFIDF = os.path.join(interactions.ROOT, 'data', 'metadata_tfidf.json')
 TFIDF_MATRIX = os.path.join(interactions.ROOT, 'data', 'sparse_matrix.npz')

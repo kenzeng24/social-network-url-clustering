@@ -8,9 +8,9 @@ The data is collected from [Information tracer](https://informationtracer.com). 
 
 Using Information Tracer, we collected posts from 5 major social media platforms (Facebook, Reddit, Youtube, Telegram, and Twitter) for all 71k+ URLs we have. It provides various forms of user interaction data with the news across multiple platforms, which well aligns with our objective. For access to the original unprocessed data, please contact the Information Tracer team at zhouhan@safelink.network. 
 
-<!-- <p align="center">
-  <img src="https://github.com/nyukat/pathology_extraction/blob/main/figures/figure1.png">
-</p> -->
+<p align="center">
+  <img src="https://github.com/kenzeng24/social-network-url-clustering/blob/main/figures/data.png">
+</p>
 
 
 ## Fake News Labels 
@@ -40,7 +40,7 @@ sys.path.append('<path to social-network-url-clustering>')
 
 ### Data Scraping
 
-Twitter API was used to collect user statistics of the Twitter users retrieved by Information Tracer \citep{roesslein2020tweepy}. In total, 70937 unique user statistics were collected. These users have either posted at least one original tweet or retweeted the news URLs in our dataset for more than 20 times. Each user has 17 features, and we utilized 8 of them in our model training. 
+[Twitter API](https://developer.twitter.com/en/docs/twitter-api) was used to collect user statistics of the Twitter users retrieved by Information Tracer. In total, 70937 unique user statistics were collected. These users have either posted at least one original tweet or retweeted the news URLs in our dataset for more than 20 times. Each user has 17 features, and we utilized 8 of them in our model training. 
 
 Compared to other social media platforms,  Twitter has a readily accessible API. For example, the feature of checking whether or not a user is verified is either never available or has been deprecated among all the other four platforms. In addition, Twitter has the highest volume of posts in relation to our URLs. In our machine learning pipeline, we will use these collected features to describe the population of users that reposted a particular URL. To use tweepy to scrape inforamtion about the twitter users:
 
@@ -57,7 +57,7 @@ config.twitter_app_auth = {
 }
 
 scraper = ProfileScraper()
-users = ["AnjneyMidha", "RealDonaldTrump"]
+users = ["AnjneyMidha", "oddlikepie", "RealDonaldTrump"]
 scraper.run(users, save_file=None)
 ```
 
